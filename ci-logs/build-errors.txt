@@ -1,0 +1,154 @@
+=== build dirs ===
+build
+=== cmake --build build ===
+[0/2] Re-checking globbed directories...
+[1/7] Building CXX object CMakeFiles/GDShare.dir/geode-sdk-clone/entry.cpp.o
+[2/7] Building CXX object bindings/CMakeFiles/GeodeBindings.dir/Unity/unity_7_cxx.cxx.o
+FAILED: [code=1] bindings/CMakeFiles/GeodeBindings.dir/Unity/unity_7_cxx.cxx.o 
+/usr/local/bin/sccache /usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android23 --sysroot=/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID_STL=c++_shared -DARC_FEATURE_TIME=1 -DGEODE_COMP_GD_VERSION=22081 -I/home/runner/work/GDShare/GDShare/geode-sdk-clone/loader/include -I/home/runner/work/GDShare/GDShare/geode-sdk-clone/loader/include/Geode/cocos/include -I/home/runner/work/GDShare/GDShare/geode-sdk-clone/loader/include/Geode/cocos/extensions -I/home/runner/work/GDShare/GDShare/geode-sdk-clone/loader/include/Geode/fmod -isystem /home/runner/work/GDShare/GDShare/build/bindings/bindings -isystem /home/runner/work/GDShare/GDShare/bindings-repo/bindings/include -isystem /home/runner/work/GDShare/GDShare/cpm-cache/fmt/6226/include -isystem /home/runner/work/GDShare/GDShare/cpm-cache/tuliphook/fe97/include -isystem /home/runner/work/GDShare/GDShare/cpm-cache/result/1b9c/include -isystem /home/runner/work/GDShare/GDShare/cpm-cache/json/75ca/include -isystem /home/runner/work/GDShare/GDShare/cpm-cache/nontype_functional/8abc/include -isystem /home/runner/work/GDShare/GDShare/cpm-cache/asp2/cb29/include -isystem /home/runner/work/GDShare/GDShare/cpm-cache/arc/5b43/include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O3 -DNDEBUG  -std=gnu++23 -flto=thin -fPIC -fvisibility=hidden -ffunction-sections -fdata-sections -MD -MT bindings/CMakeFiles/GeodeBindings.dir/Unity/unity_7_cxx.cxx.o -MF bindings/CMakeFiles/GeodeBindings.dir/Unity/unity_7_cxx.cxx.o.d -o bindings/CMakeFiles/GeodeBindings.dir/Unity/unity_7_cxx.cxx.o -c /home/runner/work/GDShare/GDShare/build/bindings/CMakeFiles/GeodeBindings.dir/Unity/unity_7_cxx.cxx
+In file included from /home/runner/work/GDShare/GDShare/build/bindings/CMakeFiles/GeodeBindings.dir/Unity/unity_7_cxx.cxx:115:
+/home/runner/work/GDShare/GDShare/bindings-repo/bindings/2.2081/inline/xml_node.cpp:3:17: error: definition of implicitly declared destructor
+    3 | pugi::xml_node::~xml_node() {
+      |                 ^
+1 error generated.
+[3/7] Building CXX object CMakeFiles/GDShare.dir/src/main.cpp.o
+ninja: build stopped: subcommand failed.
+=== CMakeError.log ===
+=== CMakeOutput tail ===
+      CMAKE_OSX_ARCHITECTURES: "arm64;x86_64"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+      CMAKE_SYSROOT: "/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
+    buildResult:
+      variable: "HAS_NULLPTR_WARNING"
+      cached: true
+      stdout: |
+        Change Dir: '/home/runner/work/GDShare/GDShare/build/CMakeFiles/CMakeScratch/TryCompile-NFDvSU'
+        
+        Run Build Command(s): /home/runner/work/GDShare/GDShare/ninja/ninja -v cmTC_88c23
+        [1/4] "/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/clang-scan-deps" -format=p1689 -- /usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android23 --sysroot=/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DHAS_NULLPTR_WARNING  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security    -std=gnu++23 -fPIE   -Wzero-as-null-pointer-constant -x c++ /home/runner/work/GDShare/GDShare/build/CMakeFiles/CMakeScratch/TryCompile-NFDvSU/src.cxx -c -o CMakeFiles/cmTC_88c23.dir/src.cxx.o -resource-dir "/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/21" -MT CMakeFiles/cmTC_88c23.dir/src.cxx.o.ddi -MD -MF CMakeFiles/cmTC_88c23.dir/src.cxx.o.ddi.d > CMakeFiles/cmTC_88c23.dir/src.cxx.o.ddi.tmp && mv CMakeFiles/cmTC_88c23.dir/src.cxx.o.ddi.tmp CMakeFiles/cmTC_88c23.dir/src.cxx.o.ddi
+        [2/4] /usr/local/bin/cmake -E cmake_ninja_dyndep --tdi=CMakeFiles/cmTC_88c23.dir/CXXDependInfo.json --lang=CXX --modmapfmt=clang --dd=CMakeFiles/cmTC_88c23.dir/CXX.dd @CMakeFiles/cmTC_88c23.dir/CXX.dd.rsp
+        [3/4] /usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android23 --sysroot=/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DHAS_NULLPTR_WARNING  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security    -std=gnu++23 -fPIE   -Wzero-as-null-pointer-constant -MD -MT CMakeFiles/cmTC_88c23.dir/src.cxx.o -MF CMakeFiles/cmTC_88c23.dir/src.cxx.o.d @CMakeFiles/cmTC_88c23.dir/src.cxx.o.modmap -o CMakeFiles/cmTC_88c23.dir/src.cxx.o -c /home/runner/work/GDShare/GDShare/build/CMakeFiles/CMakeScratch/TryCompile-NFDvSU/src.cxx
+        [4/4] : && /usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android23 --sysroot=/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -Wl,--build-id=sha1 -Wl,--no-rosegment -Wl,--no-undefined-version -Wl,--fatal-warnings -Wl,--no-undefined -Qunused-arguments CMakeFiles/cmTC_88c23.dir/src.cxx.o -o cmTC_88c23  -latomic -lm && :
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/usr/local/share/cmake-3.31/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/local/share/cmake-3.31/Modules/CheckCXXCompilerFlag.cmake:55 (cmake_check_compiler_flag)"
+      - "geode-sdk-clone/CMakeLists.txt:308 (check_cxx_compiler_flag)"
+    checks:
+      - "Performing Test SUPPORTS_W_NO_EVERYTHING"
+    directories:
+      source: "/home/runner/work/GDShare/GDShare/build/CMakeFiles/CMakeScratch/TryCompile-BZNop3"
+      binary: "/home/runner/work/GDShare/GDShare/build/CMakeFiles/CMakeScratch/TryCompile-BZNop3"
+    cmakeVariables:
+      ANDROID_ABI: "arm64-v8a"
+      ANDROID_ARM_MODE: "thumb"
+      ANDROID_PIE: "TRUE"
+      ANDROID_PLATFORM: "android-23"
+      ANDROID_STL: "c++_shared"
+      ANDROID_TOOLCHAIN: "clang"
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/clang-scan-deps"
+      CMAKE_CXX_COMPILER_TARGET: "aarch64-none-linux-android23"
+      CMAKE_CXX_FLAGS: "-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  "
+      CMAKE_CXX_FLAGS_DEBUG: "-fno-limit-debug-info "
+      CMAKE_C_COMPILER_TARGET: "aarch64-none-linux-android23"
+      CMAKE_EXE_LINKER_FLAGS: "-Wl,--build-id=sha1 -Wl,--no-rosegment -Wl,--no-undefined-version -Wl,--fatal-warnings -Wl,--no-undefined -Qunused-arguments  "
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "Embedded"
+      CMAKE_OSX_ARCHITECTURES: "arm64;x86_64"
+      CMAKE_POSITION_INDEPENDENT_CODE: "TRUE"
+      CMAKE_SYSROOT: "/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
+      CMAKE_WARN_DEPRECATED: "ON"
+    buildResult:
+      variable: "SUPPORTS_W_NO_EVERYTHING"
+      cached: true
+      stdout: |
+        Change Dir: '/home/runner/work/GDShare/GDShare/build/CMakeFiles/CMakeScratch/TryCompile-BZNop3'
+        
+        Run Build Command(s): /home/runner/work/GDShare/GDShare/ninja/ninja -v cmTC_9087f
+        [1/4] "/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/clang-scan-deps" -format=p1689 -- /usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android23 --sysroot=/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DSUPPORTS_W_NO_EVERYTHING  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security    -std=gnu++23 -fPIE   -Wno-everything -x c++ /home/runner/work/GDShare/GDShare/build/CMakeFiles/CMakeScratch/TryCompile-BZNop3/src.cxx -c -o CMakeFiles/cmTC_9087f.dir/src.cxx.o -resource-dir "/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/21" -MT CMakeFiles/cmTC_9087f.dir/src.cxx.o.ddi -MD -MF CMakeFiles/cmTC_9087f.dir/src.cxx.o.ddi.d > CMakeFiles/cmTC_9087f.dir/src.cxx.o.ddi.tmp && mv CMakeFiles/cmTC_9087f.dir/src.cxx.o.ddi.tmp CMakeFiles/cmTC_9087f.dir/src.cxx.o.ddi
+        [2/4] /usr/local/bin/cmake -E cmake_ninja_dyndep --tdi=CMakeFiles/cmTC_9087f.dir/CXXDependInfo.json --lang=CXX --modmapfmt=clang --dd=CMakeFiles/cmTC_9087f.dir/CXX.dd @CMakeFiles/cmTC_9087f.dir/CXX.dd.rsp
+        [3/4] /usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android23 --sysroot=/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DSUPPORTS_W_NO_EVERYTHING  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security    -std=gnu++23 -fPIE   -Wno-everything -MD -MT CMakeFiles/cmTC_9087f.dir/src.cxx.o -MF CMakeFiles/cmTC_9087f.dir/src.cxx.o.d @CMakeFiles/cmTC_9087f.dir/src.cxx.o.modmap -o CMakeFiles/cmTC_9087f.dir/src.cxx.o -c /home/runner/work/GDShare/GDShare/build/CMakeFiles/CMakeScratch/TryCompile-BZNop3/src.cxx
+        [4/4] : && /usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android23 --sysroot=/usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -Wl,--build-id=sha1 -Wl,--no-rosegment -Wl,--no-undefined-version -Wl,--fatal-warnings -Wl,--no-undefined -Qunused-arguments CMakeFiles/cmTC_9087f.dir/src.cxx.o -o cmTC_9087f  -latomic -lm && :
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:16 (project)"
+    message: |
+      The system is: Linux - 6.17.0-1022-azure - x86_64
+...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:16 (project)"
+    message: |
+      The system is: Linux - 6.17.0-1022-azure - x86_64
+...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:16 (project)"
+    message: |
+      The system is: Linux - 6.17.0-1022-azure - x86_64
+...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:16 (project)"
+    message: |
+      The system is: Linux - 6.17.0-1022-azure - x86_64
+...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:16 (project)"
+    message: |
+      The system is: Linux - 6.17.0-1022-azure - x86_64
+...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:16 (project)"
+    message: |
+      The system is: Linux - 6.17.0-1022-azure - x86_64
+...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:16 (project)"
+    message: |
+      The system is: Linux - 6.17.0-1022-azure - x86_64
+...
