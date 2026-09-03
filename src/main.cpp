@@ -32,6 +32,35 @@ static auto EXPORT_FOLDER_OPTIONS = file::FilePickOptions {
     }
 };
 
+// ---------------------------------------------------------------------------
+// gmd2 + song support
+// ---------------------------------------------------------------------------
+
+// Format used when the typed filename has no recognisable extension.
+// gmd2 is the only format that can carry the song file.
+static constexpr auto PREFERRED_LEVEL_TYPE = GmdFileType::Gmd2;
+
+// Pick the export format from whatever extension the user actually typed, so
+// naming the file .gmd still produces a real .gmd. Falls back to gmd2.
+static GmdFileType typeFromPath(std::filesystem::path const& path) {
+    auto ext = path.extension().string();
+    if (ext.size()) {
+        ext = ext.substr(1);
+        if (auto type = gmdTypeFromString(ext.c_str())) {
+            return type.value();
+        }
+    }
+    return PREFERRED_LEVEL_TYPE;
+}
+
+// GMD-API refuses to import a gmd2 whose song file isn't named "<number>.mp3"
+// (verifySongFileName), and that failure aborts the whole import. Official
+// in-game songs are named things like "BackOnTrack.mp3", so only bundle the
+// audio when it's a custom/Newgrounds song, which is always numeric.
+static bool canIncludeSong(GJGameLevel* level) {
+    return level && level->m_songID != 0;
+}
+
 template <class L>
 static arc::Future<file::PickResult> promptExportLevel(L* level) {
     auto opts = IMPORT_PICK_OPTIONS;
@@ -39,7 +68,8 @@ static arc::Future<file::PickResult> promptExportLevel(L* level) {
         opts.defaultPath = std::string(level->m_listName) + ".gmdl";
     }
     else {
-        opts.defaultPath = std::string(level->m_levelName) + ".gmd";
+        // default to gmd2 so the song comes along
+        opts.defaultPath = std::string(level->m_levelName) + ".gmd2";
     }
     return file::pick(file::PickMode::SaveFile, opts);
 }
@@ -53,7 +83,12 @@ static void onExportFilePick(L* level, file::PickResult result) {
             err = exportListAsGmd(level, *path).err();
         }
         else {
-            err = exportLevelAsGmd(level, *path).err();
+            auto type = typeFromPath(*path);
+            err = ExportGmdFile::from(level)
+                .setType(type)
+                .setIncludeSong(type == GmdFileType::Gmd2 && canIncludeSong(level))
+                .intoFile(*path)
+                .err();
         }
         if (!err) {
             createQuickPopup(
@@ -95,7 +130,11 @@ static void exportMany(std::vector<L*> levels, file::PickResult result) {
                 err = exportListAsGmd(level, path / (std::string(level->m_listName) + ".gmdl")).err();
             }
             else {
-                err = exportLevelAsGmd(level, path / (std::string(level->m_levelName) + ".gmd")).err();
+                err = ExportGmdFile::from(level)
+                    .setType(GmdFileType::Gmd2)
+                    .setIncludeSong(canIncludeSong(level))
+                    .intoFile(path / (std::string(level->m_levelName) + ".gmd2"))
+                    .err();
             }
             if (err) errs.push_back(*err);
         }
@@ -230,7 +269,13 @@ struct $modify(ImportLayer, LevelBrowserLayer) {
                 } break;
 
                 case GmdFileKind::Level: {
-                    auto res = gmd::importGmdAsLevel(path);
+                    // setImportSong(true) is what actually unpacks the song out
+                    // of a gmd2; gmd::importGmdAsLevel() leaves it off, which is
+                    // why songs were being silently dropped.
+                    auto res = ImportGmdFile::from(path)
+                        .inferType()
+                        .setImportSong(true)
+                        .intoLevel();
                     if (res) {
                         LocalLevelManager::get()->m_localLevels->insertObject(*res, 0);
                     }

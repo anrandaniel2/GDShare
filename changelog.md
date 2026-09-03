@@ -1,4 +1,8 @@
 
+## v1.7.0
+ * Export levels as .gmd2 by default, bundling the song file
+ * Import songs included in .gmd2 files
+
 ## v1.6.0
  * Allow exporting multiple levels, thanks to @RayDeeUx
  * Allow importing old formats, thanks to @FijiAura
