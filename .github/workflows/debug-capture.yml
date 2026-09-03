@@ -2,6 +2,9 @@ name: Debug Capture
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - arena/01a0699f-gdshare
 
 jobs:
   capture:
