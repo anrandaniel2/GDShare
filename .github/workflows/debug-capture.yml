@@ -1,0 +1,56 @@
+name: Debug Capture
+
+on:
+  workflow_dispatch:
+
+jobs:
+  capture:
+    name: Capture build errors
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: arena/01a0699f-gdshare
+
+      - name: Build the mod
+        id: build
+        continue-on-error: true
+        uses: geode-sdk/build-geode-mod@main
+        with:
+          bindings: geode-sdk/bindings
+          bindings-ref: main
+          combine: true
+          target: Android64
+
+      - name: Re-run compile and capture output
+        if: always()
+        run: |
+          set +e
+          {
+            echo "=== build dirs ==="
+            ls -d build* 2>/dev/null
+            for d in build*; do
+              [ -d "$d" ] || continue
+              echo "=== cmake --build $d ==="
+              cmake --build "$d" 2>&1 | tail -n 400
+            done
+            echo "=== CMakeError.log ==="
+            find . -name CMakeError.log -exec tail -n 100 {} \; 2>/dev/null
+            echo "=== CMakeOutput tail ==="
+            find . -name 'CMakeConfigureLog.yaml' -exec tail -n 60 {} \; 2>/dev/null
+          } > /tmp/capture.txt 2>&1
+          mkdir -p ci-logs
+          cp /tmp/capture.txt ci-logs/build-errors.txt
+          wc -l ci-logs/build-errors.txt
+
+      - name: Commit log
+        if: always()
+        run: |
+          git config user.name "ci-debug"
+          git config user.email "ci-debug@users.noreply.github.com"
+          git add -f ci-logs/build-errors.txt
+          git commit -m "ci: capture build errors" || exit 0
+          git push origin HEAD:arena/01a0699f-gdshare
