@@ -8,8 +8,6 @@
 #include <Geode/ui/Popup.hpp>
 #include <Geode/utils/async.hpp>
 #include <hjfod.gmd-api/include/GMD.hpp>
-#include <algorithm>
-#include <cctype>
 #include <filesystem>
 #include <system_error>
 
@@ -57,41 +55,35 @@ static GmdFileType typeFromPath(std::filesystem::path const& path) {
     return PREFERRED_LEVEL_TYPE;
 }
 
-// GMD-API refuses to import a gmd2 whose song file isn't named "<number>.mp3"
-// (verifySongFileName), and that failure aborts the whole import. Official
-// in-game songs are named things like "BackOnTrack.mp3", so only bundle the
-// audio when it's a custom/Newgrounds song, which is always numeric.
+// Whether we can safely hand this level's audio to GMD-API for bundling.
 //
-// We also have to confirm the file is actually on disk and non-empty before
-// asking GMD-API to bundle it. It calls Zip::addFrom() unconditionally, and a
-// missing/unreadable/empty song makes the zip writer fail with a bare
-// "Unable to write entry data (code -3)" (MZ_DATA_ERROR), which aborts the
-// entire export instead of just dropping the audio. This happens routinely:
-// the song may have never been downloaded, or been cleared from the cache.
+// This is purely a crash guard, NOT a policy check. GMD-API calls
+// Zip::addFrom() on the song path unconditionally when includeSong is set,
+// and addFrom() does readBinary() with no existence check -- so a missing,
+// empty or unreadable song makes the zip writer fail with a bare
+// "Unable to write entry data (code -3)" (MZ_DATA_ERROR) and takes the whole
+// export down with it. Songs routinely aren't on disk: never downloaded, or
+// cleared from the cache.
+//
+// Deliberately NOT enforced here: GMD-API's importer requires the song to be
+// named "<number>.mp3" (verifySongFileName). That check exists only on the
+// import path and has no bearing on whether a file can be written into a zip.
+// Refusing to export a perfectly good song just because *this* mod couldn't
+// re-import it later would be the tail wagging the dog -- the .gmd2 is a
+// normal zip and any tool can read the audio out of it. So we bundle whatever
+// the level actually has, including official songs.
 static bool canIncludeSong(GJGameLevel* level) {
-    if (!level || level->m_songID == 0) {
+    if (!level) {
+        return false;
+    }
+
+    auto name = std::string(level->getAudioFileName());
+    if (name.empty()) {
         return false;
     }
 
     // Whatever GMD-API is going to hand to the zip writer.
-    auto path = std::filesystem::path(std::string(level->getAudioFileName()));
-    if (path.empty()) {
-        return false;
-    }
-
-    // The name has to survive verifySongFileName() on the way back in,
-    // otherwise we'd write a gmd2 that can never be imported again.
-    auto name = path.filename().string();
-    if (!name.ends_with(".mp3")) {
-        return false;
-    }
-    auto stem = name.substr(0, name.size() - 4);
-    if (stem.empty() || !std::all_of(stem.begin(), stem.end(), [](unsigned char c) {
-        return std::isdigit(c);
-    })) {
-        return false;
-    }
-
+    auto path = std::filesystem::path(name);
     std::error_code ec;
     if (!std::filesystem::is_regular_file(path, ec) || ec) {
         return false;
@@ -333,6 +325,16 @@ struct $modify(ImportLayer, LevelBrowserLayer) {
                         .inferType()
                         .setImportSong(true)
                         .intoLevel();
+                    // GMD-API rejects any bundled song not named "<number>.mp3"
+                    // and fails the entire import over it. That's a fine rule
+                    // for deciding whether to unpack the audio, but a terrible
+                    // reason to refuse the level, so retry without the song.
+                    if (!res) {
+                        res = ImportGmdFile::from(path)
+                            .inferType()
+                            .setImportSong(false)
+                            .intoLevel();
+                    }
                     if (res) {
                         LocalLevelManager::get()->m_localLevels->insertObject(*res, 0);
                     }

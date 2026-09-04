@@ -1,4 +1,8 @@
 
+## v1.7.2
+ * Bundle official in-game songs too, instead of only custom ones
+ * Import levels even if a bundled song can't be unpacked
+
 ## v1.7.1
  * Fix "Unable to write entry data (code -3)" when exporting a level whose song file is missing from disk
  * Fall back to exporting without the song instead of failing the whole export
