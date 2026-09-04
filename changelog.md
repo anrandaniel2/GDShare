@@ -1,4 +1,8 @@
 
+## v1.7.1
+ * Fix "Unable to write entry data (code -3)" when exporting a level whose song file is missing from disk
+ * Fall back to exporting without the song instead of failing the whole export
+
 ## v1.7.0
  * Export levels as .gmd2 by default, bundling the song file
  * Import songs included in .gmd2 files

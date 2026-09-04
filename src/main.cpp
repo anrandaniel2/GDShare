@@ -8,6 +8,10 @@
 #include <Geode/ui/Popup.hpp>
 #include <Geode/utils/async.hpp>
 #include <hjfod.gmd-api/include/GMD.hpp>
+#include <algorithm>
+#include <cctype>
+#include <filesystem>
+#include <system_error>
 
 using namespace geode::prelude;
 using namespace gmd;
@@ -57,8 +61,43 @@ static GmdFileType typeFromPath(std::filesystem::path const& path) {
 // (verifySongFileName), and that failure aborts the whole import. Official
 // in-game songs are named things like "BackOnTrack.mp3", so only bundle the
 // audio when it's a custom/Newgrounds song, which is always numeric.
+//
+// We also have to confirm the file is actually on disk and non-empty before
+// asking GMD-API to bundle it. It calls Zip::addFrom() unconditionally, and a
+// missing/unreadable/empty song makes the zip writer fail with a bare
+// "Unable to write entry data (code -3)" (MZ_DATA_ERROR), which aborts the
+// entire export instead of just dropping the audio. This happens routinely:
+// the song may have never been downloaded, or been cleared from the cache.
 static bool canIncludeSong(GJGameLevel* level) {
-    return level && level->m_songID != 0;
+    if (!level || level->m_songID == 0) {
+        return false;
+    }
+
+    // Whatever GMD-API is going to hand to the zip writer.
+    auto path = std::filesystem::path(std::string(level->getAudioFileName()));
+    if (path.empty()) {
+        return false;
+    }
+
+    // The name has to survive verifySongFileName() on the way back in,
+    // otherwise we'd write a gmd2 that can never be imported again.
+    auto name = path.filename().string();
+    if (!name.ends_with(".mp3")) {
+        return false;
+    }
+    auto stem = name.substr(0, name.size() - 4);
+    if (stem.empty() || !std::all_of(stem.begin(), stem.end(), [](unsigned char c) {
+        return std::isdigit(c);
+    })) {
+        return false;
+    }
+
+    std::error_code ec;
+    if (!std::filesystem::is_regular_file(path, ec) || ec) {
+        return false;
+    }
+    // An empty file would deflate to nothing and trip the same -3 error.
+    return std::filesystem::file_size(path, ec) > 0 && !ec;
 }
 
 template <class L>
@@ -84,11 +123,20 @@ static void onExportFilePick(L* level, file::PickResult result) {
         }
         else {
             auto type = typeFromPath(*path);
+            auto withSong = type == GmdFileType::Gmd2 && canIncludeSong(level);
             err = ExportGmdFile::from(level)
                 .setType(type)
-                .setIncludeSong(type == GmdFileType::Gmd2 && canIncludeSong(level))
+                .setIncludeSong(withSong)
                 .intoFile(*path)
                 .err();
+            // Never let a bad song file cost the user their level export.
+            if (err && withSong) {
+                err = ExportGmdFile::from(level)
+                    .setType(type)
+                    .setIncludeSong(false)
+                    .intoFile(*path)
+                    .err();
+            }
         }
         if (!err) {
             createQuickPopup(
@@ -130,11 +178,20 @@ static void exportMany(std::vector<L*> levels, file::PickResult result) {
                 err = exportListAsGmd(level, path / (std::string(level->m_listName) + ".gmdl")).err();
             }
             else {
+                auto to = path / (std::string(level->m_levelName) + ".gmd2");
+                auto withSong = canIncludeSong(level);
                 err = ExportGmdFile::from(level)
                     .setType(GmdFileType::Gmd2)
-                    .setIncludeSong(canIncludeSong(level))
-                    .intoFile(path / (std::string(level->m_levelName) + ".gmd2"))
+                    .setIncludeSong(withSong)
+                    .intoFile(to)
                     .err();
+                if (err && withSong) {
+                    err = ExportGmdFile::from(level)
+                        .setType(GmdFileType::Gmd2)
+                        .setIncludeSong(false)
+                        .intoFile(to)
+                        .err();
+                }
             }
             if (err) errs.push_back(*err);
         }
