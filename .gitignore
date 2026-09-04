@@ -41,3 +41,6 @@
 # Ignore build folders
 **/build
 **/build-*
+
+# Built mod artifacts
+dist/
