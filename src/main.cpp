@@ -8,7 +8,11 @@
 #include <Geode/ui/Popup.hpp>
 #include <Geode/utils/async.hpp>
 #include <hjfod.gmd-api/include/GMD.hpp>
+#include <Geode/utils/file.hpp>
+#include <matjson.hpp>
 #include <filesystem>
+#include <memory>
+#include <optional>
 #include <system_error>
 
 using namespace geode::prelude;
@@ -104,6 +108,55 @@ static arc::Future<file::PickResult> promptExportLevel(L* level) {
     }
     return file::pick(file::PickMode::SaveFile, opts);
 }
+// Write a .gmd2 ourselves instead of going through ExportGmdFile.
+//
+// GMD-API builds gmd2 with file::Zip::create() -- the in-memory overload --
+// and that path is broken in the SDK: Zip::Impl::intoMemory() opens the
+// stream with MZ_OPEN_MODE_CREATE only, omitting MZ_OPEN_MODE_WRITE:
+//
+//     ret->m_mode = MZ_OPEN_MODE_CREATE;                        // intoMemory()
+//     ...inFile(file, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE) // create(path)
+//
+// minizip's zlib stream only calls deflateInit2() under
+// `if (mode & MZ_OPEN_MODE_WRITE)`, so the deflate stream is never
+// initialised and every mz_zip_entry_write() fails. That surfaces as
+// "Unable to write entry data (code -3)" (MZ_DATA_ERROR) on EVERY gmd2
+// export, with or without a song -- which is why dropping the song didn't
+// help. The file-based Zip::create(path) sets both flags and works fine,
+// so we use that and write the same entries GMD-API would.
+static std::optional<std::string> writeGmd2(
+    GJGameLevel* level, std::filesystem::path const& to, bool includeSong
+) {
+    auto zipRes = file::Zip::create(to);
+    if (!zipRes) {
+        return zipRes.unwrapErr();
+    }
+    auto zip = std::move(zipRes).unwrap();
+
+    auto dict = std::make_unique<DS_Dictionary>();
+    level->encodeWithCoder(dict.get());
+    auto data = std::string(dict->saveRootSubDictToString());
+
+    auto json = matjson::Value();
+    if (includeSong) {
+        auto songPath = std::filesystem::path(std::string(level->getAudioFileName()));
+        json["song-file"] = songPath.filename().string();
+        json["song-is-custom"] = level->m_songID;
+        if (auto res = zip.addFrom(songPath); !res) {
+            // Song is optional -- fall back to a songless gmd2 rather than
+            // losing the export entirely.
+            return writeGmd2(level, to, false);
+        }
+    }
+    if (auto res = zip.add("level.meta", json.dump()); !res) {
+        return res.unwrapErr();
+    }
+    if (auto res = zip.add("level.data", data); !res) {
+        return res.unwrapErr();
+    }
+    return std::nullopt;
+}
+
 template <class L>
 static void onExportFilePick(L* level, file::PickResult result) {
     if (result.isOk()) {
@@ -115,17 +168,13 @@ static void onExportFilePick(L* level, file::PickResult result) {
         }
         else {
             auto type = typeFromPath(*path);
-            auto withSong = type == GmdFileType::Gmd2 && canIncludeSong(level);
-            err = ExportGmdFile::from(level)
-                .setType(type)
-                .setIncludeSong(withSong)
-                .intoFile(*path)
-                .err();
-            // Never let a bad song file cost the user their level export.
-            if (err && withSong) {
+            if (type == GmdFileType::Gmd2) {
+                err = writeGmd2(level, *path, canIncludeSong(level));
+            }
+            else {
+                // gmd/lvl are plain writes and don't touch the zip code.
                 err = ExportGmdFile::from(level)
                     .setType(type)
-                    .setIncludeSong(false)
                     .intoFile(*path)
                     .err();
             }
@@ -171,19 +220,7 @@ static void exportMany(std::vector<L*> levels, file::PickResult result) {
             }
             else {
                 auto to = path / (std::string(level->m_levelName) + ".gmd2");
-                auto withSong = canIncludeSong(level);
-                err = ExportGmdFile::from(level)
-                    .setType(GmdFileType::Gmd2)
-                    .setIncludeSong(withSong)
-                    .intoFile(to)
-                    .err();
-                if (err && withSong) {
-                    err = ExportGmdFile::from(level)
-                        .setType(GmdFileType::Gmd2)
-                        .setIncludeSong(false)
-                        .intoFile(to)
-                        .err();
-                }
+                err = writeGmd2(level, to, canIncludeSong(level));
             }
             if (err) errs.push_back(*err);
         }

@@ -1,4 +1,7 @@
 
+## v1.7.3
+ * Fix "Unable to write entry data (code -3)" affecting every .gmd2 export
+
 ## v1.7.2
  * Bundle official in-game songs too, instead of only custom ones
  * Import levels even if a bundled song can't be unpacked
